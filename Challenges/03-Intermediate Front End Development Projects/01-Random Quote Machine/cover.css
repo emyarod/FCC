@@ -1,3 +1,17 @@
+#quote,
+#author {
+  display: none;
+}
+
+#quote {
+  font-family: 'Playfair Display', serif;
+}
+
+#author {
+  font-family: 'Lato', sans-serif;
+}
+
+
 /*
  * Globals
  */
