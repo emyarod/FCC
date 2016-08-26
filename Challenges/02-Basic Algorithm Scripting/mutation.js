@@ -1,7 +1,7 @@
 function mutation(arr) {
   const [first, second] = arr;
   let counter = 0;
-  for (var i = 0; i < second.length; i++) {
+  for (let i = 0; i < second.length; i++) {
     if (first.toLowerCase().indexOf(second[i].toLowerCase()) === -1) {
       return false;
     }

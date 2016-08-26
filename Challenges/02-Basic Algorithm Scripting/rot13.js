@@ -1,6 +1,6 @@
 function rot13(str) { // LBH QVQ VG!
   let newStr = '';
-  for (var i = 0; i < str.length; i++) {
+  for (let i = 0; i < str.length; i++) {
     // check if character is alphabetic
     if (/[a-z]/i.test(str[i])) {
       /**

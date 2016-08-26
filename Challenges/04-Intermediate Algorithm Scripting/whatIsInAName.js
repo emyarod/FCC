@@ -1,6 +1,6 @@
 function whatIsInAName(collection, source) {
   // What's in a name?
-  var arr = [];
+  const arr = [];
   // Only change code below this line
   const sourceKeys = Object.keys(source);
   collection.forEach((object) => {

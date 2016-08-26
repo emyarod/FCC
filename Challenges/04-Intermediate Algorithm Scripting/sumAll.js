@@ -2,7 +2,7 @@ function sumAll(arr) {
   const max = Math.max.apply(null, arr);
   const min = Math.min.apply(null, arr);
   const array = [];
-  for (var i = min; i <= max; i++) {
+  for (let i = min; i <= max; i++) {
     array.push(i);
   }
 
