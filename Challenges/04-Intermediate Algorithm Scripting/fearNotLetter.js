@@ -1,7 +1,7 @@
 function fearNotLetter(str) {
   const charCodes = [];
   const range = [];
-  for (var i = 0; i < str.length; i++) {
+  for (let i = 0; i < str.length; i++) {
     charCodes.push(str.charCodeAt(i));
   }
 

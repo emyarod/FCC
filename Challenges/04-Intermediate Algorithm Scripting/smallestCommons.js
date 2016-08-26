@@ -28,7 +28,7 @@ function smallestCommons(arr) {
   const range = [];
 
   // create an array of numbers from range [min, max]
-  for (var i = min; i <= max; i++) {
+  for (let i = min; i <= max; i++) {
     range.push(i);
   }
 

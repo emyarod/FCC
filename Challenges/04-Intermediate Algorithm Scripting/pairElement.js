@@ -1,6 +1,6 @@
 function pairElement(str) {
   const pairs = [];
-  for (var i = 0; i < str.length; i++) {
+  for (let i = 0; i < str.length; i++) {
     if (str[i] === 'A') {
       pairs.push([str[i], 'T']);
     } else if (str[i] === 'T') {

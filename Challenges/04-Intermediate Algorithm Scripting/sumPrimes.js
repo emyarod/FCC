@@ -11,7 +11,7 @@ function isPrime(value) {
 function sumPrimes(num) {
   const primes = [];
   let total = 0;
-  for (var i = 2; i <= num; i++) {
+  for (let i = 2; i <= num; i++) {
     if (isPrime(i)) {
       primes.push(i);
     }
