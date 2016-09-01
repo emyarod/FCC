@@ -1,0 +1,15 @@
+#display {
+  margin-bottom: 10px;
+  padding: 20px 16px;
+  border: 1px solid #adadad;
+  border-radius: 6px;
+  color: #444;
+}
+
+#answer {
+  font-size: 50px;
+}
+
+.btn h1 {
+  font-weight: bold;
+}
