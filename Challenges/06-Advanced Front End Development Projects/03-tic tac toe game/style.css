@@ -1,0 +1,78 @@
+/*enabled unchecked = blank
+disabled checked = x
+disabled unchecked = o
+
+disable checkbox as soon as it's checked*/
+
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  font-family: sans-serif;
+}
+
+.board {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  width: 33%;
+  height: 100%;
+}
+
+.square {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  height: 200px;
+  width: 200px;
+  margin: 0;
+  border: 5px solid #000;
+}
+
+.square:hover {
+  background-color: #80cd92;
+}
+
+input[type="checkbox"] {
+  display: none;
+}
+
+label::after {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  width: 200px;
+  content: attr(data-content);
+  color: #000;
+  font-size: 5em;
+  cursor: pointer;
+}
+
+.buttons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+button {
+  margin: 5px 0;
+  padding: 15px 10px;
+  border: 0;
+  border-radius: 2px;
+  font-weight: bold;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+#x::after {
+  content: ' (goes first)';
+}
+
+#o::after {
+  content: ' (goes second)';
+}
