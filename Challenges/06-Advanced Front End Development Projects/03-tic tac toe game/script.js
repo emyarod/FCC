@@ -1,64 +1,192 @@
-{
-  const state = { symbol: 'x' };
-  const labels = [...document.querySelectorAll('label')];
-  const buttons = [...document.querySelectorAll('button')];
+let board = [
+  [null, null, null],
+  [null, null, null],
+  [null, null, null],
+];
 
-  function render(event, symbol) {
-    event.currentTarget.setAttribute('disabled', 'disabled');
-    event.currentTarget.setAttribute('data-content', symbol);
-  }
+let myMove = false;
 
-  function reset() {
-    document.querySelector('.buttons').style.display = 'flex';
-    // clear board
-  }
+function getWinner(b) {
+  // Check if someone won
+  const vals = [true, false];
+  let allNotNull = true;
+  for (let k = 0; k < vals.length; k++) {
+    const value = vals[k];
 
-  function checkForWinner() {
-    const board = labels.map(square => {
-      const letter = square.getAttribute('data-content');
-      return !letter ? '' : letter;
-    });
-
-    const winningCombos = [
-      [0, 1, 2],
-      [3, 4, 5],
-      [6, 7, 8],
-      [0, 3, 6],
-      [1, 4, 7],
-      [2, 5, 8],
-      [0, 4, 8],
-      [2, 4, 6],
-    ];
-
-    return winningCombos.find(combo => {
-      const [sq1, sq2, sq3] = combo;
-      const condition = board[sq1] && board[sq1] === board[sq2] && board[sq2] === board[sq3];
-      return condition ? combo : false;
-    });
-  }
-
-  function clickListener(event) {
-    const switchSymbol = symbol => (symbol === 'x' ? 'o' : 'x');
-    render(event, state.symbol);
-
-    if (checkForWinner()) {
-      console.log(`${state.symbol} wins`);
-      labels.forEach(element => element.removeEventListener('click', clickListener, false), this);
-      reset();
-      return;
+    // Check rows, columns, and diagonals
+    let diagonalComplete1 = true;
+    let diagonalComplete2 = true;
+    for (let i = 0; i < 3; i++) {
+      if (b[i][i] !== value) {
+        diagonalComplete1 = false;
+      }
+      if (b[2 - i][i] !== value) {
+        diagonalComplete2 = false;
+      }
+      let rowComplete = true;
+      let colComplete = true;
+      for (let j = 0; j < 3; j++) {
+        if (b[i][j] !== value) {
+          rowComplete = false;
+        }
+        if (b[j][i] !== value) {
+          colComplete = false;
+        }
+        if (b[i][j] === null) {
+          allNotNull = false;
+        }
+      }
+      if (rowComplete || colComplete) {
+        return value ? 1 : 0;
+      }
     }
-
-    state.symbol = switchSymbol(state.symbol);
-    event.currentTarget.removeEventListener('click', clickListener, false);
+    if (diagonalComplete1 || diagonalComplete2) {
+      return value ? 1 : 0;
+    }
   }
-
-  function pickSide(event) {
-    state.symbol = event.currentTarget.innerHTML;
-    // if user picks o, start AI {need to comment out line above}
-    event.currentTarget.removeEventListener('click', pickSide, false);
-    labels.forEach(element => element.addEventListener('click', clickListener, false), this);
-    document.querySelector('.buttons').style.display = 'none';
+  if (allNotNull) {
+    return -1;
   }
-
-  buttons.forEach(element => element.addEventListener('click', pickSide, false), this);
+  return null;
 }
+
+function recurseMinimax(bo, player) {
+  const b = bo;
+  const winner = getWinner(b);
+  if (winner !== null) {
+    if (winner === 1) {
+      // AI wins
+      return [1, b];
+    } else if (winner === 0) {
+      // opponent wins
+      return [-1, b];
+    } else if (winner === -1) {
+      // Tie
+      return [0, b];
+    }
+  } else {
+    // Next states
+    let nextVal = null;
+    let nextBoard = null;
+
+    for (let i = 0; i < 3; i++) {
+      for (let j = 0; j < 3; j++) {
+        if (b[i][j] === null) {
+          b[i][j] = player;
+          const [value] = recurseMinimax(b, !player);
+          if (
+            (player && (nextVal === null || value > nextVal)) ||
+            (!player && (nextVal === null || value < nextVal))
+          ) {
+            nextBoard = b.map((arr) => arr.slice());
+            nextVal = value;
+          }
+          b[i][j] = null;
+        }
+      }
+    }
+    return [nextVal, nextBoard];
+  }
+
+  return null;
+}
+
+function minimaxMove(b) {
+  return recurseMinimax(b, true)[1];
+}
+
+function updateButtons() {
+  for (let i = 0; i < 3; i++) {
+    for (let j = 0; j < 3; j++) {
+      if (board[i][j] === false) {
+        [...document.querySelectorAll(`#c${i}${j}`)]
+          .forEach(n => {
+            n.setAttribute('disabled', 'disabled');
+            n.textContent = 'x';
+          });
+      } else if (board[i][j]) {
+        [...document.querySelectorAll(`#c${i}${j}`)]
+          .forEach(n => {
+            n.setAttribute('disabled', 'disabled');
+            n.textContent = 'o';
+          });
+      } else {
+        [...document.querySelectorAll(`#c${i}${j}`)]
+          .forEach(n => n.textContent = '');
+      }
+    }
+  }
+}
+
+function updateMove() {
+  updateButtons();
+  const winner = getWinner(board);
+
+  if (winner === 1) {
+    [...document.querySelectorAll('#winner')][0].textContent = 'AI Won!';
+    [...document.querySelectorAll('#move')][0].textContent = '';
+    [...document.querySelectorAll('button')].forEach(button =>
+      button.setAttribute('disabled', 'disabled')
+    );
+    return;
+  } else if (winner === 0) {
+    [...document.querySelectorAll('#winner')][0].textContent = 'You Won!';
+    [...document.querySelectorAll('#move')][0].textContent = '';
+    [...document.querySelectorAll('button')].forEach(button =>
+      button.setAttribute('disabled', 'disabled')
+    );
+    return;
+  } else if (winner === -1) {
+    [...document.querySelectorAll('#winner')][0].textContent = 'Tie!';
+    [...document.querySelectorAll('#move')][0].textContent = '';
+    [...document.querySelectorAll('button')].forEach(button =>
+      button.setAttribute('disabled', 'disabled')
+    );
+    return;
+  }
+
+  [...document.querySelectorAll('#winner')][0].textContent = '';
+  [...document.querySelectorAll('#move')]
+    .forEach(n => myMove
+      ? n.textContent = `AI's Move`
+      : n.textContent = 'Your move'
+    );
+}
+
+function makeMove() {
+  board = minimaxMove(board);
+  myMove = false;
+  updateMove();
+}
+
+function restartGame() {
+  [...document.querySelectorAll('button')].forEach(button =>
+    button.removeAttribute('disabled')
+  );
+  board = [
+    [null, null, null],
+    [null, null, null],
+    [null, null, null],
+  ];
+  myMove = false;
+  updateMove();
+}
+
+if (myMove) {
+  makeMove();
+}
+
+[...document.querySelectorAll('button')]
+  .forEach(n => n.addEventListener('click', () => {
+    const [, row, col] = event.currentTarget.getAttribute('id');
+    if (!myMove) {
+      board[parseInt(row, 10)][parseInt(col, 10)] = false;
+      myMove = true;
+      updateMove();
+      makeMove();
+    }
+  }));
+
+[...document.querySelectorAll('#restart')][0]
+  .addEventListener('click', restartGame);
+updateMove();

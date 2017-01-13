@@ -8,7 +8,7 @@
 </head>
 
 <body>
-  <h1>tic tac toe</h1>
+  <!-- <h1>tic tac toe</h1>
   <div class="board">
     <div class="square">
       <input type="checkbox" id="squareZero">
@@ -52,7 +52,31 @@
     <h2>choose a side</h2>
     <button id="x">x</button>
     <button id="o">o</button>
+  </div> -->
+  <div class="wrapper">
+    Click a cell when it's your move.<br><br>
+    <div id="winner"></div>
+    <div id="move">AI's Move</div>
+    <table>
+      <tr>
+        <td><button id="c00"></button></td>
+        <td><button id="c01"></button></td>
+        <td><button id="c02"></button></td>
+      </tr>
+      <tr>
+        <td><button id="c10"></button></td>
+        <td><button id="c11"></button></td>
+        <td><button id="c12"></button></td>
+      </tr>
+      <tr>
+        <td><button id="c20"></button></td>
+        <td><button id="c21"></button></td>
+        <td><button id="c22"></button></td>
+      </tr>
+    </table>
+    <input type="button" id="restart" value="Restart Game" />
   </div>
+  <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
   <script src="script.js"></script>
 </body>
 
