@@ -20,42 +20,37 @@ const channels = [
   'noobs2ninjas',
   'brunofin',
   'comster404',
+  'asdfasdfsadfasdfsadffwegawegwegawegawe',
 ];
 
-function getAvatar(user) {
-  return new Promise((resolve) => {
-    $.getJSON(`https://api.twitch.tv/kraken/users/${user}?callback=?`, (userData) => {
-      const { logo: avatar } = userData;
-      if (avatar === null) {
-        resolve(noavatar);
-      } else {
-        resolve(avatar);
-      }
-    });
-  });
+function call(type, name) {
+  return `https://wind-bow.gomix.me/twitch-api/${type}/${name}?callback=?`;
+}
+
+function userExists(user) {
+  return new Promise((resolve, reject) => (
+    $.getJSON(call('channels', user), (data) => (
+      data.error ? reject('User not found') : resolve(data)
+    ))
+  ));
+}
+
+function checkStatus(user) {
+  return new Promise((resolve) => (
+    $.getJSON(call('streams', user), (data) => (
+      data.stream ? resolve(data.stream.channel.status) : resolve('Offline')
+    ))
+  ));
 }
 
 function getStreamDetails(channel) {
-  return new Promise((resolve) => {
-    $.getJSON(`https://api.twitch.tv/kraken/streams/${channel}?callback=?`, (streamData) => {
-      if (streamData.error !== undefined) {
-        resolve(new Streamer(channel));
-      } else {
-        let game = '-';
-        let title = 'Offline';
-
-        if (streamData.stream !== null) {
-          game = streamData.stream.game;
-          title = streamData.stream.channel.status;
-        }
-
-        getAvatar(channel).then((image) => {
-          const avatar = image;
-          // console.log(avatar);
-          resolve(new Streamer(channel, avatar, game, title));
-        });
-      }
-    });
+  return new Promise((resolve, reject) => {
+    userExists(channel)
+      .then(({ game, logo: avatar }) => {
+        checkStatus(channel)
+          .then(title => resolve(new Streamer(channel, avatar, game, title)));
+      })
+      .catch(err => resolve(new Streamer(channel, noavatar, '-', err)));
   });
 }
 
@@ -81,7 +76,7 @@ results.then((streamers) => {
         </a>`.trim();
     }
 
-    if (streamer.status === 'Account closed') {
+    if (streamer.status === 'User not found') {
       avatar = `<img src="${streamer.avatar}" alt="${streamer.channel}">`;
     } else {
       avatar = `
