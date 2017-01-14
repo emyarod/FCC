@@ -4,35 +4,35 @@ let board = [
   [null, null, null],
 ];
 
-let myMove = false;
+let cpuMove = false;
 
 function getWinner(b) {
-  // Check if someone won
+  // check for winner
   const vals = [true, false];
   let allNotNull = true;
   for (let k = 0; k < vals.length; k++) {
     const value = vals[k];
 
-    // Check rows, columns, and diagonals
+    // check rows, columns, and diagonals
     let diagonalComplete1 = true;
     let diagonalComplete2 = true;
-    for (let i = 0; i < 3; i++) {
-      if (b[i][i] !== value) {
+    for (let row = 0; row < 3; row++) {
+      if (b[row][row] !== value) {
         diagonalComplete1 = false;
       }
-      if (b[2 - i][i] !== value) {
+      if (b[2 - row][row] !== value) {
         diagonalComplete2 = false;
       }
       let rowComplete = true;
       let colComplete = true;
-      for (let j = 0; j < 3; j++) {
-        if (b[i][j] !== value) {
+      for (let col = 0; col < 3; col++) {
+        if (b[row][col] !== value) {
           rowComplete = false;
         }
-        if (b[j][i] !== value) {
+        if (b[col][row] !== value) {
           colComplete = false;
         }
-        if (b[i][j] === null) {
+        if (b[row][col] === null) {
           allNotNull = false;
         }
       }
@@ -44,24 +44,21 @@ function getWinner(b) {
       return value ? 1 : 0;
     }
   }
-  if (allNotNull) {
-    return -1;
-  }
-  return null;
+
+  return allNotNull ? -1 : null;
 }
 
-function recurseMinimax(bo, player) {
-  const b = bo;
+function minimax(b, player) {
   const winner = getWinner(b);
   if (winner !== null) {
     if (winner === 1) {
-      // AI wins
+      // CPU wins
       return [1, b];
     } else if (winner === 0) {
-      // opponent wins
+      // player wins
       return [-1, b];
     } else if (winner === -1) {
-      // Tie
+      // tie
       return [0, b];
     }
   } else {
@@ -69,11 +66,11 @@ function recurseMinimax(bo, player) {
     let nextVal = null;
     let nextBoard = null;
 
-    for (let i = 0; i < 3; i++) {
-      for (let j = 0; j < 3; j++) {
-        if (b[i][j] === null) {
-          b[i][j] = player;
-          const [value] = recurseMinimax(b, !player);
+    for (let row = 0; row < 3; row++) {
+      for (let col = 0; col < 3; col++) {
+        if (b[row][col] === null) {
+          b[row][col] = player;
+          const [value] = minimax(b, !player);
           if (
             (player && (nextVal === null || value > nextVal)) ||
             (!player && (nextVal === null || value < nextVal))
@@ -81,7 +78,7 @@ function recurseMinimax(bo, player) {
             nextBoard = b.map((arr) => arr.slice());
             nextVal = value;
           }
-          b[i][j] = null;
+          b[row][col] = null;
         }
       }
     }
@@ -91,28 +88,23 @@ function recurseMinimax(bo, player) {
   return null;
 }
 
-function minimaxMove(b) {
-  return recurseMinimax(b, true)[1];
-}
-
 function updateButtons() {
-  for (let i = 0; i < 3; i++) {
-    for (let j = 0; j < 3; j++) {
-      if (board[i][j] === false) {
-        [...document.querySelectorAll(`#c${i}${j}`)]
-          .forEach(n => {
-            n.setAttribute('disabled', 'disabled');
-            n.textContent = 'x';
-          });
-      } else if (board[i][j]) {
-        [...document.querySelectorAll(`#c${i}${j}`)]
-          .forEach(n => {
-            n.setAttribute('disabled', 'disabled');
-            n.textContent = 'o';
-          });
+  const labelButtons = (row, col, letter, disable = true) => {
+    [...document.querySelectorAll(`#c${row}${col}`)]
+      .forEach(n => {
+        disable ? n.setAttribute('disabled', 'disabled') : null;
+        n.textContent = letter;
+      });
+  };
+
+  for (let row = 0; row < 3; row++) {
+    for (let col = 0; col < 3; col++) {
+      if (board[row][col] === false) {
+        labelButtons(row, col, 'x');
+      } else if (board[row][col]) {
+        labelButtons(row, col, 'o');
       } else {
-        [...document.querySelectorAll(`#c${i}${j}`)]
-          .forEach(n => n.textContent = '');
+        labelButtons(row, col, '', false);
       }
     }
   }
@@ -121,72 +113,70 @@ function updateButtons() {
 function updateMove() {
   updateButtons();
   const winner = getWinner(board);
+  const endGame = (endstate) => {
+    [...document.querySelectorAll('#winner')][0].textContent = `${endstate}`;
+    [...document.querySelectorAll('#move')][0].textContent = '';
+    [...document.querySelectorAll('button')].forEach(button =>
+      button.setAttribute('disabled', 'disabled')
+    );
+  };
 
   if (winner === 1) {
-    [...document.querySelectorAll('#winner')][0].textContent = 'AI Won!';
-    [...document.querySelectorAll('#move')][0].textContent = '';
-    [...document.querySelectorAll('button')].forEach(button =>
-      button.setAttribute('disabled', 'disabled')
-    );
+    endGame('CPU won!');
     return;
   } else if (winner === 0) {
-    [...document.querySelectorAll('#winner')][0].textContent = 'You Won!';
-    [...document.querySelectorAll('#move')][0].textContent = '';
-    [...document.querySelectorAll('button')].forEach(button =>
-      button.setAttribute('disabled', 'disabled')
-    );
+    endGame('You won!');
     return;
   } else if (winner === -1) {
-    [...document.querySelectorAll('#winner')][0].textContent = 'Tie!';
-    [...document.querySelectorAll('#move')][0].textContent = '';
-    [...document.querySelectorAll('button')].forEach(button =>
-      button.setAttribute('disabled', 'disabled')
-    );
+    endGame('Tie!');
     return;
   }
 
   [...document.querySelectorAll('#winner')][0].textContent = '';
   [...document.querySelectorAll('#move')]
-    .forEach(n => myMove
-      ? n.textContent = `AI's Move`
+    .forEach(n => cpuMove
+      ? n.textContent = 'CPU\'s Move'
       : n.textContent = 'Your move'
     );
 }
 
 function makeMove() {
-  board = minimaxMove(board);
-  myMove = false;
+  [, board] = minimax(board, true);
+  cpuMove = false;
   updateMove();
 }
 
-function restartGame() {
+function restartGame(cpuTurn) {
   [...document.querySelectorAll('button')].forEach(button =>
     button.removeAttribute('disabled')
   );
+
   board = [
     [null, null, null],
     [null, null, null],
     [null, null, null],
   ];
-  myMove = false;
+
+  cpuMove = cpuTurn === 'cpu';
   updateMove();
+
+  if (cpuMove) makeMove();
 }
 
-if (myMove) {
-  makeMove();
-}
 
 [...document.querySelectorAll('button')]
-  .forEach(n => n.addEventListener('click', () => {
+  .forEach(n => n.addEventListener('click', event => {
     const [, row, col] = event.currentTarget.getAttribute('id');
-    if (!myMove) {
+    if (!cpuMove) {
       board[parseInt(row, 10)][parseInt(col, 10)] = false;
-      myMove = true;
+      cpuMove = true;
       updateMove();
       makeMove();
     }
   }));
 
-[...document.querySelectorAll('#restart')][0]
-  .addEventListener('click', restartGame);
-updateMove();
+[...document.querySelectorAll('#cpustart')][0]
+  .addEventListener('click', () => restartGame('cpu'));
+
+[...document.querySelectorAll('#playerstart')][0]
+  .addEventListener('click', () => restartGame('player'));
