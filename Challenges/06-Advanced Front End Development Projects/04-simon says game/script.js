@@ -53,16 +53,16 @@
     // make notes unclickable
     moves.forEach(move => move.style.pointerEvents = 'none');
 
-    // wait 1000ms after last player move
+    // wait 1 second after player move
     timeout = setTimeout(() => {
       level = 0;
 
-      // wait x ms before playing next note in the simonMoves array
+      // wait between notes
       sequence = setInterval(() => {
         // play interval
         playNote(simonMoves[level]);
 
-        // play all notes up to current step
+        // play notes up to current step
         if (step <= level) {
           // make notes clickable
           moves.forEach(move => move.style.pointerEvents = 'auto');
@@ -90,6 +90,7 @@
     playNoteSeq();
   }
 
+  // increment level
   function nextLevel() {
     step++;
     levelText.textContent = `Level: ${step}`;
@@ -97,17 +98,18 @@
     playerMoves.length = 0;
   }
 
+  // error function
   function fail() {
     playerMoves.length = 0;
     playNoteSeq();
     levelText.textContent = `Try level ${step} again`;
 
-    // restart on mistakes
+    // restart if strict mode is on
     if (strict) reset();
   }
 
-  // checks all notes up to current step
-  function checkAllNotes() {
+  // checks all moves
+  function checkAllMoves() {
     for (let i = 0; i <= step; i++) {
       if (simonMoves[i] !== playerMoves[i]) return false;
     }
@@ -115,8 +117,8 @@
     return true;
   }
 
-  // checks each note as they are clicked
-  function checkSomeNotes() {
+  // checks each move
+  function checkMove() {
     for (let i = 0; i < playerMoves.length; i++) {
       if (simonMoves[i] !== playerMoves[i]) return false;
     }
@@ -160,8 +162,8 @@
       playerMoves.push(note);
 
       if (playerMoves.length === (step + 1)) {
-        checkAllNotes() ? nextLevel() : fail();
-      } else if (!checkSomeNotes()) {
+        checkAllMoves() ? nextLevel() : fail();
+      } else if (!checkMove()) {
         fail();
       }
     }
